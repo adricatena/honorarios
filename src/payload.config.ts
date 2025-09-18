@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { storagePlugin } from './plugins/storage'
 import { Clients } from './resources/clients'
+import { Concepts } from './resources/concepts'
 import { Files } from './resources/files'
 import { Users } from './resources/users'
 
@@ -34,7 +35,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Files, Clients],
+  collections: [Users, Files, Clients, Concepts],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

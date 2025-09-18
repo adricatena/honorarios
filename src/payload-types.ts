@@ -71,6 +71,7 @@ export interface Config {
     users: User;
     files: File;
     clients: Client;
+    concepts: Concept;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     files: FilesSelect<false> | FilesSelect<true>;
     clients: ClientsSelect<false> | ClientsSelect<true>;
+    concepts: ConceptsSelect<false> | ConceptsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -274,6 +276,19 @@ export interface Client {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "concepts".
+ */
+export interface Concept {
+  id: string;
+  name: string;
+  price: number;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -290,6 +305,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'clients';
         value: string | Client;
+      } | null)
+    | ({
+        relationTo: 'concepts';
+        value: string | Concept;
       } | null);
   globalSlug?: string | null;
   user:
@@ -487,6 +506,18 @@ export interface ClientsSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "concepts_select".
+ */
+export interface ConceptsSelect<T extends boolean = true> {
+  name?: T;
+  price?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
