@@ -248,6 +248,11 @@ export interface File {
  */
 export interface Client {
   id: string;
+  cuit: string;
+  vat_condition: 'responsable_inscripto' | 'monotributista';
+  phone?: string | null;
+  business_name: string;
+  address: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -460,6 +465,11 @@ export interface FilesSelect<T extends boolean = true> {
  * via the `definition` "clients_select".
  */
 export interface ClientsSelect<T extends boolean = true> {
+  cuit?: T;
+  vat_condition?: T;
+  phone?: T;
+  business_name?: T;
+  address?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

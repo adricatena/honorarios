@@ -28,6 +28,11 @@ export default buildConfig({
     meta: {
       titleSuffix: '| Honorarios',
     },
+    components: {
+      graphics: {
+        Logo: '/brand/logo#Logo',
+      },
+    },
   },
   collections: [Users, Files, Clients],
   editor: lexicalEditor(),
