@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { storagePlugin } from './plugins/storage'
+import { Clients } from './resources/clients'
 import { Files } from './resources/files'
 import { Users } from './resources/users'
 
@@ -28,7 +29,7 @@ export default buildConfig({
       titleSuffix: '| Honorarios',
     },
   },
-  collections: [Users, Files],
+  collections: [Users, Files, Clients],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

@@ -1,7 +1,10 @@
+import { HIDE_API_URL } from '@/config'
 import { User } from '@/payload-types'
 import type { Access, CollectionConfig } from 'payload'
 
 const read: Access<User> = ({ id, req }) => {
+  if (req.user?.collection !== 'users') return false
+
   if (req.user?.dev) return true
 
   return req.user?.id === id
@@ -15,6 +18,7 @@ export const Users: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'email',
+    hideAPIURL: HIDE_API_URL,
   },
   access: {
     read,
@@ -33,7 +37,10 @@ export const Users: CollectionConfig = {
         hidden: true,
       },
       access: {
-        read: ({ req }) => Boolean(req.user?.dev),
+        read: ({ req }) => {
+          if (req.user?.collection !== 'users') return false
+          return Boolean(req.user?.dev)
+        },
       },
     },
   ],
