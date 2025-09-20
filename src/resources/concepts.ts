@@ -38,6 +38,11 @@ export const Concepts: CollectionConfig = {
       type: 'textarea',
       label: 'Descripción',
       required: false,
+      admin: {
+        description: 'Descripción del concepto.',
+        placeholder: 'Escribe aquí una descripción del concepto...',
+        rows: 4,
+      },
     },
   ],
 }

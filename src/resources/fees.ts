@@ -84,13 +84,53 @@ export const Fees: CollectionConfig = {
       hasMany: false,
     },
     {
+      name: 'contepts',
+      type: 'array',
+      label: 'Conceptos',
+      labels: {
+        singular: 'Concepto',
+        plural: 'Conceptos',
+      },
+      fields: [
+        {
+          name: 'concept',
+          type: 'relationship',
+          label: 'Concepto',
+          relationTo: 'concepts',
+          required: true,
+          hasMany: false,
+        },
+        {
+          name: 'price',
+          type: 'number',
+          label: 'Precio',
+          required: true,
+          min: 0,
+          admin: {
+            step: 0.01,
+          },
+        },
+      ],
+    },
+    {
+      name: 'observations',
+      type: 'textarea',
+      label: 'Observaciones',
+      required: false,
+      admin: {
+        description: 'Información adicional sobre el honorario.',
+        placeholder: 'Escribe aquí cualquier información adicional sobre el honorario...',
+        rows: 4,
+      },
+    },
+    /* {
       name: 'concepts',
       type: 'relationship',
       label: 'Conceptos',
       relationTo: 'concepts',
       required: true,
       hasMany: true,
-    },
+    }, */
     // aside fields
     {
       name: 'period',

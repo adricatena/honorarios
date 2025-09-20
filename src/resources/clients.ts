@@ -26,6 +26,24 @@ export const Clients: CollectionConfig = {
       label: 'Domicilio',
       required: true,
     },
+    {
+      name: 'concepts',
+      type: 'relationship',
+      label: 'Conceptos',
+      relationTo: 'concepts',
+      hasMany: true,
+    },
+    {
+      name: 'observations',
+      type: 'textarea',
+      label: 'Observaciones',
+      required: false,
+      admin: {
+        description: 'Información adicional sobre el cliente.',
+        placeholder: 'Escribe aquí cualquier información adicional sobre el cliente...',
+        rows: 4,
+      },
+    },
     // aside fields
     {
       name: 'email',

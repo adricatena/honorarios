@@ -231,6 +231,11 @@ export interface Client {
   id: string;
   business_name: string;
   address: string;
+  concepts?: (string | Concept)[] | null;
+  /**
+   * Información adicional sobre el cliente.
+   */
+  observations?: string | null;
   email: string;
   cuit: string;
   vat_condition: 'responsable_inscripto' | 'monotributista';
@@ -248,6 +253,9 @@ export interface Concept {
   id: string;
   name: string;
   price: number;
+  /**
+   * Descripción del concepto.
+   */
   description?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -260,7 +268,17 @@ export interface Concept {
 export interface Fee {
   id: string;
   client: string | Client;
-  concepts: (string | Concept)[];
+  contepts?:
+    | {
+        concept: string | Concept;
+        price: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Información adicional sobre el honorario.
+   */
+  observations?: string | null;
   period: string;
   state: 'due' | 'paid';
   title?: string | null;
@@ -461,6 +479,8 @@ export interface FilesSelect<T extends boolean = true> {
 export interface ClientsSelect<T extends boolean = true> {
   business_name?: T;
   address?: T;
+  concepts?: T;
+  observations?: T;
   email?: T;
   cuit?: T;
   vat_condition?: T;
@@ -488,7 +508,14 @@ export interface ConceptsSelect<T extends boolean = true> {
  */
 export interface FeesSelect<T extends boolean = true> {
   client?: T;
-  concepts?: T;
+  contepts?:
+    | T
+    | {
+        concept?: T;
+        price?: T;
+        id?: T;
+      };
+  observations?: T;
   period?: T;
   state?: T;
   title?: T;

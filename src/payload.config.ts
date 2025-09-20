@@ -37,6 +37,16 @@ export default buildConfig({
     },
   },
   collections: [Users, Files, Clients, Concepts, Fees],
+  /* jobs: {
+    tasks: [CreateMonthlyFees],
+    autoRun: [
+      {
+        cron: '* 0/5 * * * *', // every 5 minutes
+        queue: 'monthly-fees',
+        limit: undefined,
+      },
+    ],
+  }, */
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
