@@ -30,6 +30,19 @@ export const Fees: CollectionConfig = {
     },
     // aside fields
     {
+      name: 'period',
+      type: 'date',
+      label: 'Período',
+      required: true,
+      admin: {
+        position: 'sidebar',
+        date: {
+          pickerAppearance: 'monthOnly',
+          displayFormat: 'MM/yyyy',
+        },
+      },
+    },
+    {
       name: 'state',
       type: 'select',
       label: 'Estado',

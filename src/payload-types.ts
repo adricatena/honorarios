@@ -261,6 +261,7 @@ export interface Fee {
   id: string;
   client: string | Client;
   concepts: (string | Concept)[];
+  period: string;
   state: 'due' | 'paid';
   updatedAt: string;
   createdAt: string;
@@ -487,6 +488,7 @@ export interface ConceptsSelect<T extends boolean = true> {
 export interface FeesSelect<T extends boolean = true> {
   client?: T;
   concepts?: T;
+  period?: T;
   state?: T;
   updatedAt?: T;
   createdAt?: T;
