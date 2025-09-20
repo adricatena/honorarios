@@ -64,7 +64,6 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
-    clients: ClientAuthOperations;
   };
   blocks: {};
   collections: {
@@ -72,6 +71,7 @@ export interface Config {
     files: File;
     clients: Client;
     concepts: Concept;
+    fees: Fee;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -82,6 +82,7 @@ export interface Config {
     files: FilesSelect<false> | FilesSelect<true>;
     clients: ClientsSelect<false> | ClientsSelect<true>;
     concepts: ConceptsSelect<false> | ConceptsSelect<true>;
+    fees: FeesSelect<false> | FeesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -92,37 +93,15 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: null;
-  user:
-    | (User & {
-        collection: 'users';
-      })
-    | (Client & {
-        collection: 'clients';
-      });
+  user: User & {
+    collection: 'users';
+  };
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    email: string;
-    password: string;
-  };
-  login: {
-    email: string;
-    password: string;
-  };
-  registerFirstUser: {
-    email: string;
-    password: string;
-  };
-  unlock: {
-    email: string;
-    password: string;
-  };
-}
-export interface ClientAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -250,29 +229,16 @@ export interface File {
  */
 export interface Client {
   id: string;
+  business_name: string;
+  address: string;
+  email: string;
   cuit: string;
   vat_condition: 'responsable_inscripto' | 'monotributista';
   phone?: string | null;
-  business_name: string;
-  address: string;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -283,6 +249,19 @@ export interface Concept {
   name: string;
   price: number;
   description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fees".
+ */
+export interface Fee {
+  id: string;
+  client: string | Client;
+  concepts: (string | Concept)[];
+  state: 'due' | 'paid';
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -309,17 +288,16 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'concepts';
         value: string | Concept;
+      } | null)
+    | ({
+        relationTo: 'fees';
+        value: string | Fee;
       } | null);
   globalSlug?: string | null;
-  user:
-    | {
-        relationTo: 'users';
-        value: string | User;
-      }
-    | {
-        relationTo: 'clients';
-        value: string | Client;
-      };
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -329,15 +307,10 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user:
-    | {
-        relationTo: 'users';
-        value: string | User;
-      }
-    | {
-        relationTo: 'clients';
-        value: string | Client;
-      };
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
   key?: string | null;
   value?:
     | {
@@ -484,28 +457,16 @@ export interface FilesSelect<T extends boolean = true> {
  * via the `definition` "clients_select".
  */
 export interface ClientsSelect<T extends boolean = true> {
+  business_name?: T;
+  address?: T;
+  email?: T;
   cuit?: T;
   vat_condition?: T;
   phone?: T;
-  business_name?: T;
-  address?: T;
+  active?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -515,6 +476,18 @@ export interface ConceptsSelect<T extends boolean = true> {
   name?: T;
   price?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fees_select".
+ */
+export interface FeesSelect<T extends boolean = true> {
+  client?: T;
+  concepts?: T;
+  state?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

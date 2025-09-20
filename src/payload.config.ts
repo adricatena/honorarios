@@ -11,6 +11,7 @@ import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { storagePlugin } from './plugins/storage'
 import { Clients } from './resources/clients'
 import { Concepts } from './resources/concepts'
+import { Fees } from './resources/fees'
 import { Files } from './resources/files'
 import { Users } from './resources/users'
 
@@ -35,7 +36,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Files, Clients, Concepts],
+  collections: [Users, Files, Clients, Concepts, Fees],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
