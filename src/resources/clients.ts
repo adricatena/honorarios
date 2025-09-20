@@ -9,6 +9,7 @@ export const Clients: CollectionConfig = {
   },
   admin: {
     hideAPIURL: HIDE_API_URL,
+    useAsTitle: 'business_name',
   },
   // auth: true,
   trash: true,
