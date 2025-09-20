@@ -44,8 +44,6 @@ const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
     },
   })
 
-  console.log(docs, data, originalDoc)
-
   if (totalDocs < 1) {
     return data
   }
@@ -60,29 +58,6 @@ const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
   }
 
   return data
-
-  /* if (operation === 'create') {
-    if (totalDocs > 0) {
-      throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
-    }
-
-    return data
-  }
-
-  if (operation === 'update') {
-    if (totalDocs > 0) {
-      const existingFee = docs.at(0)
-
-      if (existingFee?.id !== data.id) {
-        throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
-      }
-
-      // chequear que el cliente no tenga ya un honorario para el mismo período
-      console.log('existingFee', existingFee)
-    }
-
-    return data
-  } */
 }
 
 export const Fees: CollectionConfig = {
