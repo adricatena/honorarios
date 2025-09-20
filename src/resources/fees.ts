@@ -1,5 +1,89 @@
 import { HIDE_API_URL } from '@/config'
-import { CollectionConfig } from 'payload'
+import { Fee } from '@/payload-types'
+import { APIError, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+
+// si ya existe un honorario para el mismo cliente y período, lanzar error
+const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
+  operation,
+  req,
+  data,
+  originalDoc,
+}) => {
+  if (!data.client || !data.period) {
+    throw new APIError('El cliente y el período son obligatorios.', 400, null, true)
+  }
+
+  const client =
+    typeof data.client === 'string'
+      ? await req.payload.findByID({
+          collection: 'clients',
+          id: data.client,
+        })
+      : data.client
+
+  const date = new Date(data.period)
+  const period = `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
+
+  data.title = `${client.business_name} - ${period}`
+
+  const { docs, totalDocs } = await req.payload.find({
+    collection: 'fees',
+    where: {
+      and: [
+        {
+          client: {
+            equals: data.client,
+          },
+        },
+        {
+          period: {
+            equals: data.period,
+          },
+        },
+      ],
+    },
+  })
+
+  console.log(docs, data, originalDoc)
+
+  if (totalDocs < 1) {
+    return data
+  }
+
+  if (operation === 'create') {
+    throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
+  }
+
+  const existing = docs.some((fee) => fee.id !== originalDoc?.id)
+  if (existing) {
+    throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
+  }
+
+  return data
+
+  /* if (operation === 'create') {
+    if (totalDocs > 0) {
+      throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
+    }
+
+    return data
+  }
+
+  if (operation === 'update') {
+    if (totalDocs > 0) {
+      const existingFee = docs.at(0)
+
+      if (existingFee?.id !== data.id) {
+        throw new APIError('Ya existe un honorario para este cliente y período.', 400, null, true)
+      }
+
+      // chequear que el cliente no tenga ya un honorario para el mismo período
+      console.log('existingFee', existingFee)
+    }
+
+    return data
+  } */
+}
 
 export const Fees: CollectionConfig = {
   slug: 'fees',
@@ -9,6 +93,10 @@ export const Fees: CollectionConfig = {
   },
   admin: {
     hideAPIURL: HIDE_API_URL,
+    useAsTitle: 'title',
+  },
+  hooks: {
+    beforeChange: [beforeChange],
   },
   trash: true,
   fields: [
@@ -60,6 +148,15 @@ export const Fees: CollectionConfig = {
       required: true,
       admin: {
         position: 'sidebar',
+      },
+    },
+    // hidden fields
+    {
+      name: 'title',
+      type: 'text',
+      label: 'Título',
+      admin: {
+        hidden: true,
       },
     },
   ],

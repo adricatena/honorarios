@@ -263,6 +263,7 @@ export interface Fee {
   concepts: (string | Concept)[];
   period: string;
   state: 'due' | 'paid';
+  title?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -490,6 +491,7 @@ export interface FeesSelect<T extends boolean = true> {
   concepts?: T;
   period?: T;
   state?: T;
+  title?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
