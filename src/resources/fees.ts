@@ -84,7 +84,7 @@ export const Fees: CollectionConfig = {
       hasMany: false,
     },
     {
-      name: 'contepts',
+      name: 'concepts',
       type: 'array',
       label: 'Conceptos',
       labels: {

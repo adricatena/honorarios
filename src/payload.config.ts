@@ -13,6 +13,7 @@ import { Clients } from './resources/clients'
 import { Concepts } from './resources/concepts'
 import { Fees } from './resources/fees'
 import { Files } from './resources/files'
+import { CreateMonthlyFees } from './resources/tasks/create-monthly-fees'
 import { Users } from './resources/users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -37,16 +38,15 @@ export default buildConfig({
     },
   },
   collections: [Users, Files, Clients, Concepts, Fees],
-  /* jobs: {
+  jobs: {
     tasks: [CreateMonthlyFees],
     autoRun: [
       {
-        cron: '* 0/5 * * * *', // every 5 minutes
         queue: 'monthly-fees',
-        limit: undefined,
+        cron: '0/10 * * * * *', // every 10 seconds
       },
     ],
-  }, */
+  },
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
