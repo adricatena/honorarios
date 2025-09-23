@@ -43,7 +43,7 @@ export default buildConfig({
     autoRun: [
       {
         queue: 'monthly-fees',
-        cron: '0/10 * * * * *', // every 10 seconds
+        cron: '0 0/1 * * * *', // every 9 minutes, at second 0
       },
     ],
   },

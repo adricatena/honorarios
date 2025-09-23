@@ -7,7 +7,7 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
   schedule: [
     {
       queue: 'monthly-fees',
-      cron: '0 0/2 * * * *', // cada 2 minutos, en el segundo 0
+      cron: '0 0/1 * * * *', // cada 10 minutos, en el segundo 0
     },
   ],
   inputSchema: [],
@@ -72,14 +72,14 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
     await Promise.all(promises)
 
     console.log(
-      `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleDateString(
+      `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleTimeString(
         'es-AR',
       )}.`,
     )
 
     return {
       output: {
-        message: `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleDateString(
+        message: `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleTimeString(
           'es-AR',
         )}.`,
       },
