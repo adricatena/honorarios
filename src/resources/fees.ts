@@ -1,4 +1,4 @@
-import { HIDE_API_URL } from '@/config'
+import { HIDE_API_URL, NODE_ENV } from '@/config'
 import { Fee } from '@/payload-types'
 import { APIError, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
@@ -69,12 +69,35 @@ export const Fees: CollectionConfig = {
   admin: {
     hideAPIURL: HIDE_API_URL,
     useAsTitle: 'title',
+    components: {
+      views: {
+        edit: {
+          honorario: {
+            tab: {
+              Component: '/components/download-pdf-fee#DownloadPdfFee',
+            },
+          },
+        },
+      },
+    },
   },
   hooks: {
     beforeChange: [beforeChange],
   },
   trash: true,
   fields: [
+    {
+      type: 'ui',
+      name: 'comprobante',
+      label: 'Comprobante',
+      admin: {
+        condition: () => NODE_ENV !== 'production',
+        width: '100%',
+        components: {
+          Field: '/components/viewer-pdf-fee#ViewerPdfFee',
+        },
+      },
+    },
     {
       name: 'client',
       type: 'relationship',
