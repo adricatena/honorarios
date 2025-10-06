@@ -7,7 +7,7 @@ import { buildConfig } from 'payload'
 import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-import { DATABASE_URI, PAYLOAD_SECRET } from './config'
+import { DATABASE_URI, JOBS_CRON, PAYLOAD_SECRET } from './config'
 import { storagePlugin } from './plugins/storage'
 import { Clients } from './resources/clients'
 import { Concepts } from './resources/concepts'
@@ -43,7 +43,7 @@ export default buildConfig({
     autoRun: [
       {
         queue: 'monthly-fees',
-        cron: '0 0/1 * * * *', // every 9 minutes, at second 0
+        cron: JOBS_CRON,
       },
     ],
   },

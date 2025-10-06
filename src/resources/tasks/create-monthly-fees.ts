@@ -1,3 +1,4 @@
+import { CREATE_MONTHLY_FEES_CRON } from '@/config'
 import { Client, Concept } from '@/payload-types'
 import { TaskConfig } from 'payload'
 
@@ -7,7 +8,7 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
   schedule: [
     {
       queue: 'monthly-fees',
-      cron: '0 0/1 * * * *', // cada 10 minutos, en el segundo 0
+      cron: CREATE_MONTHLY_FEES_CRON,
     },
   ],
   inputSchema: [],
@@ -69,17 +70,15 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
         },
       })
     })
-    await Promise.all(promises)
+    const createdFees = await Promise.all(promises)
 
     console.log(
-      `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleTimeString(
-        'es-AR',
-      )}.`,
+      `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleTimeString('es-AR')}.`,
     )
 
     return {
       output: {
-        message: `Se han creado ${filteredClients.length} honorarios para ${TODAY.toLocaleTimeString(
+        message: `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleTimeString(
           'es-AR',
         )}.`,
       },
