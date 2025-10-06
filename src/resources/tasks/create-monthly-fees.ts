@@ -73,12 +73,12 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
     const createdFees = await Promise.all(promises)
 
     console.log(
-      `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleTimeString('es-AR')}.`,
+      `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleDateString('es-AR')}.`,
     )
 
     return {
       output: {
-        message: `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleTimeString(
+        message: `Se han creado ${createdFees.length} honorarios para ${TODAY.toLocaleDateString(
           'es-AR',
         )}.`,
       },

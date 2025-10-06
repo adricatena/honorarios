@@ -123,14 +123,6 @@ export const Fees: CollectionConfig = {
         rows: 4,
       },
     },
-    /* {
-      name: 'concepts',
-      type: 'relationship',
-      label: 'Conceptos',
-      relationTo: 'concepts',
-      required: true,
-      hasMany: true,
-    }, */
     // aside fields
     {
       name: 'period',
