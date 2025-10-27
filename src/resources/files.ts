@@ -1,5 +1,5 @@
 import { HIDE_API_URL } from '@/config'
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 export const Files: CollectionConfig = {
   slug: 'files',

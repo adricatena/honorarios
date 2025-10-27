@@ -1,6 +1,6 @@
 import { HIDE_API_URL, NODE_ENV } from '@/config'
-import { Fee } from '@/payload-types'
-import { APIError, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { Fee } from '@/payload-types'
+import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
 
 // si ya existe un honorario para el mismo cliente y período, lanzar error
 const beforeChange: CollectionBeforeChangeHook<Fee> = async ({

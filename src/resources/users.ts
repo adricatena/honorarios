@@ -1,5 +1,5 @@
 import { HIDE_API_URL } from '@/config'
-import { User } from '@/payload-types'
+import type { User } from '@/payload-types'
 import type { Access, CollectionConfig } from 'payload'
 
 const read: Access<User> = ({ id, req }) => {

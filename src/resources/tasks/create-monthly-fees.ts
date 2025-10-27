@@ -1,6 +1,6 @@
 import { CREATE_MONTHLY_FEES_CRON } from '@/config'
-import { Client, Concept } from '@/payload-types'
-import { TaskConfig } from 'payload'
+import type { Client, Concept } from '@/payload-types'
+import type { TaskConfig } from 'payload'
 
 export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
   slug: 'create-monthly-fees',
