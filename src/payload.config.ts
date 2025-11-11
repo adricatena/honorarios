@@ -13,6 +13,7 @@ import { Clients } from './resources/clients'
 import { Concepts } from './resources/concepts'
 import { Fees } from './resources/fees'
 import { Files } from './resources/files'
+import { Variables } from './resources/globals/variables'
 import { CreateMonthlyFees } from './resources/tasks/create-monthly-fees'
 import { Users } from './resources/users'
 
@@ -38,6 +39,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Files, Clients, Concepts, Fees],
+  globals: [Variables],
   jobs: {
     tasks: [CreateMonthlyFees],
     autoRun: [

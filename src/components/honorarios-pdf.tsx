@@ -1,3 +1,4 @@
+import type { Client, Concept, Fee, Variable } from '@/payload-types'
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 
 // Estilos para el PDF
@@ -5,14 +6,27 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 20,
-    fontSize: 10,
+    padding: 30,
+    fontSize: 9,
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'column',
   },
   title: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 8,
+  },
+  clientInfo: {
+    marginBottom: 10,
+    padding: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  clientText: {
+    fontSize: 8,
+    marginBottom: 1,
   },
   table: {
     display: 'flex',
@@ -20,6 +34,7 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
+    marginBottom: 10,
   },
   tableRow: {
     margin: 'auto',
@@ -30,50 +45,33 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
-    padding: 4,
+    padding: 3,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 8,
   },
   tableCell: {
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
-    padding: 4,
-    fontSize: 8,
+    padding: 3,
+    fontSize: 7,
   },
   tableCellConcept: {
+    width: '60%',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: '#000',
+    padding: 3,
+    fontSize: 7,
+  },
+  tableCellAmount: {
     width: '40%',
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
-    padding: 4,
-    fontSize: 8,
-  },
-  tableCellPeriod: {
-    width: '20%',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 4,
-    fontSize: 8,
-    textAlign: 'center',
-  },
-  tableCellValue: {
-    width: '20%',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 4,
-    fontSize: 8,
-    textAlign: 'center',
-  },
-  tableCellAmount: {
-    width: '20%',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 4,
-    fontSize: 8,
+    padding: 3,
+    fontSize: 7,
     textAlign: 'right',
   },
   headerRow: {
@@ -81,123 +79,195 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   totalRow: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e0e0e0',
     flexDirection: 'row',
     fontWeight: 'bold',
   },
-  paymentRow: {
-    backgroundColor: '#ffffcc',
-    flexDirection: 'row',
-    fontWeight: 'bold',
-  },
-  // Header sin logo - alineado a la izquierda
   header: {
-    marginBottom: 30,
-    paddingBottom: 15,
+    marginBottom: 12,
+    paddingBottom: 8,
     borderBottom: '1pt solid #333',
   },
-
   headerName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   headerTitle: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#666',
     marginBottom: 1,
   },
   headerMatricula: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#888',
+  },
+  paymentInfo: {
+    marginTop: 'auto',
+    padding: 6,
+    backgroundColor: '#f0f0f0',
+    borderTop: '1pt solid #ccc',
+  },
+  paymentTitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 3,
+  },
+  paymentText: {
+    fontSize: 7,
+    marginBottom: 1,
   },
 })
 
-// Datos de la tabla
-const tableData = [
-  { concept: 'LIQUIDACION SUELDO', period: 'Jul-25', value: '6', amount: '138000' },
-  {
-    concept: 'INFORME CONTROLADOR FISCAL (SEMANAL)',
-    period: 'Jul-25',
-    value: '1.2',
-    amount: '27600',
-  },
-  { concept: 'DDJJ IVA - LIBRO IVA VTA-COMPRA', period: 'Jul-25', value: '4.5', amount: '103500' },
-  { concept: 'DDJJ IIBB - MUNICIPALIDAD', period: 'Jul-25', value: '2.3', amount: '52900' },
-  {
-    concept: 'ANALISIS DE RECATEGORIZACION FRANCISCO VIGNOLA',
-    period: '',
-    value: '',
-    amount: '60000',
-  },
-]
+interface Props {
+  previousFees: Fee[]
+  fee: Fee
+  globals: Variable
+}
 
-export function HonorariosPDF() {
+export function HonorariosPDF({ fee, globals, previousFees }: Props) {
+  console.log('Generating PDF with fee:', fee, 'and globals:', globals)
+
+  // Calcular el total de honorarios previos adeudados
+  const previousFeesTotal =
+    previousFees?.reduce((sum, prevFee) => {
+      const feeTotal =
+        prevFee.concepts?.reduce((conceptSum, item) => {
+          return conceptSum + (item.price || 0)
+        }, 0) || 0
+      return sum + feeTotal
+    }, 0) || 0
+
+  // Obtener el cliente (puede ser objeto o string ID)
+  const client = typeof fee.client === 'string' ? null : (fee.client as Client)
+
+  // Calcular el total sumando todos los conceptos
+  const total =
+    fee.concepts?.reduce((sum, item) => {
+      return sum + (item.price || 0)
+    }, 0) || 0
+
+  // Función para formatear moneda
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-AR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} orientation="portrait">
         {/* Header profesional */}
         <View style={styles.header}>
           <Text style={styles.headerName}>LEANDRO LOPEZ</Text>
           <Text style={styles.headerTitle}>CONTADOR PÚBLICO NACIONAL</Text>
-          <Text style={styles.headerMatricula}>MAT. 5108 CPEER</Text>
+          <Text style={styles.headerMatricula}>MAT. {globals.registration_number}</Text>
         </View>
 
         {/* Título del documento */}
-        <Text style={styles.title}>HONORARIOS - Aug-25</Text>
+        <Text style={styles.title}>
+          HONORARIOS -{' '}
+          {new Date(fee.period).toLocaleDateString('es-AR', { month: '2-digit', year: 'numeric' })}
+        </Text>
 
-        {/* Tabla */}
+        {/* Información del Cliente */}
+        {client && (
+          <View style={styles.clientInfo}>
+            <Text style={styles.clientText}>
+              <Text style={{ fontWeight: 'bold' }}>Cliente:</Text> {client.business_name}
+            </Text>
+            <Text style={styles.clientText}>
+              <Text style={{ fontWeight: 'bold' }}>CUIT:</Text> {client.cuit}
+            </Text>
+            {client.address && (
+              <Text style={styles.clientText}>
+                <Text style={{ fontWeight: 'bold' }}>Dirección:</Text> {client.address}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Tabla de Conceptos */}
         <View style={styles.table}>
           {/* Header de la tabla */}
           <View style={styles.headerRow}>
-            <Text style={[styles.tableHeader, { width: '40%' }]}>PER. FISCAL</Text>
-            <Text style={[styles.tableHeader, { width: '20%' }]}>VALOR MOD</Text>
-            <Text style={[styles.tableHeader, { width: '40%' }]}>23000</Text>
+            <Text style={[styles.tableHeader, { width: '60%' }]}>CONCEPTO</Text>
+            <Text style={[styles.tableHeader, { width: '40%' }]}>IMPORTE</Text>
           </View>
 
-          {/* Fila "SALDO ANTERIOR" */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellConcept}>SALDO ANTERIOR</Text>
-            <Text style={styles.tableCellPeriod}></Text>
-            <Text style={styles.tableCellValue}></Text>
-            <Text style={styles.tableCellAmount}></Text>
-          </View>
+          {/* Honorarios previos adeudados - detallados por periodo */}
+          {previousFees && previousFees.length > 0 && (
+            <>
+              {previousFees.map((prevFee, idx) => {
+                const prevFeeTotal =
+                  prevFee.concepts?.reduce((sum, item) => {
+                    return sum + (item.price || 0)
+                  }, 0) || 0
+                return (
+                  <View key={`prev-${idx}`} style={styles.tableRow}>
+                    <Text
+                      style={[styles.tableCellConcept, { fontWeight: 'bold', fontStyle: 'italic' }]}
+                    >
+                      SALDO ANTERIOR -{' '}
+                      {new Date(prevFee.period).toLocaleDateString('es-AR', {
+                        month: '2-digit',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                    <Text style={[styles.tableCellAmount, { fontWeight: 'bold' }]}>
+                      $ {formatCurrency(prevFeeTotal)}
+                    </Text>
+                  </View>
+                )
+              })}
+            </>
+          )}
 
-          {/* Fila vacía */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellConcept}></Text>
-            <Text style={styles.tableCellPeriod}></Text>
-            <Text style={styles.tableCellValue}></Text>
-            <Text style={styles.tableCellAmount}></Text>
-          </View>
-
-          {/* Filas de datos */}
-          {tableData.map((row, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.tableCellConcept}>{row.concept}</Text>
-              <Text style={styles.tableCellPeriod}>{row.period}</Text>
-              <Text style={styles.tableCellValue}>{row.value}</Text>
-              <Text style={styles.tableCellAmount}>{row.amount}</Text>
+          {/* Filas de conceptos */}
+          {fee.concepts && fee.concepts.length > 0 ? (
+            fee.concepts.map((item, index) => {
+              const concept = typeof item.concept === 'string' ? null : (item.concept as Concept)
+              return (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={styles.tableCellConcept}>
+                    {concept ? concept.name : 'Concepto desconocido'}
+                  </Text>
+                  <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                </View>
+              )
+            })
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCellConcept}>Sin conceptos</Text>
+              <Text style={styles.tableCellAmount}>$ 0.00</Text>
             </View>
-          ))}
+          )}
 
           {/* Fila de total */}
           <View style={styles.totalRow}>
-            <Text style={[styles.tableCellConcept, { width: '60%' }]}></Text>
-            <Text style={[styles.tableCellAmount, { width: '40%', fontWeight: 'bold' }]}>
-              382,000.00
+            <Text style={[styles.tableCellConcept, { fontWeight: 'bold' }]}>TOTAL</Text>
+            <Text style={[styles.tableCellAmount, { fontWeight: 'bold' }]}>
+              $ {formatCurrency(total + previousFeesTotal)}
             </Text>
           </View>
+        </View>
 
-          {/* Fila de pago destacada */}
-          <View style={styles.paymentRow}>
-            <Text style={[styles.tableCellConcept, { width: '60%' }]}>
-              PAGO 28/08/2025 RECIBO N°0020 TALONARIO 01
-            </Text>
-            <Text style={styles.tableCellPeriod}>-</Text>
-            <Text style={[styles.tableCellAmount, { width: '20%' }]}>382,000.00</Text>
-          </View>
+        {/* Información de pago - siempre al pie */}
+        <View style={styles.paymentInfo}>
+          <Text style={styles.paymentTitle}>INFORMACIÓN DE PAGO</Text>
+          <Text style={styles.paymentText}>
+            <Text style={{ fontWeight: 'bold' }}>Titular:</Text> {globals.account_holder} |{' '}
+            <Text style={{ fontWeight: 'bold' }}>CUIT:</Text> {globals.cuit}
+          </Text>
+          <Text style={styles.paymentText}>
+            <Text style={{ fontWeight: 'bold' }}>Banco:</Text> {globals.bank_name} |{' '}
+            <Text style={{ fontWeight: 'bold' }}>Alias:</Text> {globals.bank_alias}
+          </Text>
+          <Text style={styles.paymentText}>
+            <Text style={{ fontWeight: 'bold' }}>CBU:</Text> {globals.cbu}
+          </Text>
         </View>
       </Page>
     </Document>

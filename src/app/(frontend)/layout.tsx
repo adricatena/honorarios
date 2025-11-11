@@ -1,5 +1,4 @@
 import React from 'react'
-import './styles.css'
 
 export const metadata = {
   description: 'Sistema de Honorarios - Leando Lopez',
