@@ -94,6 +94,18 @@ export const Fees: CollectionConfig = {
         condition: () => NODE_ENV !== 'production',
         width: '100%',
         components: {
+          Field: '/components/viewer-pdf-comprobante#ViewerPdfComprobante',
+        },
+      },
+    },
+    {
+      type: 'ui',
+      name: 'honorarios',
+      label: 'Honorarios',
+      admin: {
+        condition: () => NODE_ENV !== 'production',
+        width: '100%',
+        components: {
           Field: '/components/viewer-pdf-fee#ViewerPdfFee',
         },
       },
