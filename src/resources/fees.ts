@@ -192,6 +192,39 @@ export const Fees: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'paymentDate',
+      type: 'date',
+      label: 'Fecha de Pago',
+      required: false,
+      admin: {
+        position: 'sidebar',
+        date: {
+          displayFormat: 'dd/MM/yyyy',
+        },
+        condition: (data) => data?.state === 'paid',
+      },
+    },
+    {
+      name: 'paymentMethod',
+      type: 'select',
+      label: 'Método de Pago',
+      options: [
+        {
+          label: 'Efectivo',
+          value: 'cash',
+        },
+        {
+          label: 'Transferencia Bancaria',
+          value: 'bank_transfer',
+        },
+      ],
+      required: false,
+      admin: {
+        position: 'sidebar',
+        condition: (data) => data?.state === 'paid',
+      },
+    },
     // hidden fields
     {
       name: 'title',

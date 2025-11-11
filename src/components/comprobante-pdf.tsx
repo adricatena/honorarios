@@ -1,4 +1,4 @@
-import type { Client, Fee, Variable } from '@/payload-types'
+import type { Client, Concept, Fee, Variable } from '@/payload-types'
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 
 // Estilos para el PDF del comprobante
@@ -41,6 +41,17 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 10,
   },
+  paymentDate: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: 10,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   clientInfo: {
     marginBottom: 10,
     padding: 5,
@@ -50,19 +61,11 @@ const styles = StyleSheet.create({
     fontSize: 8,
     marginBottom: 1,
   },
-  infoRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-    alignItems: 'center',
-  },
-  infoLabel: {
+  receiptText: {
     fontSize: 8,
-    fontWeight: 'bold',
-    width: '30%',
-  },
-  infoValue: {
-    fontSize: 8,
-    width: '70%',
+    lineHeight: 1.6,
+    marginBottom: 15,
+    textAlign: 'justify',
   },
   table: {
     display: 'flex',
@@ -180,8 +183,16 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
     }).format(amount)
   }
 
-  // Formatear fecha
-  const currentDate = new Date().toLocaleDateString('es-AR')
+  // Formatear fecha de pago o usar fecha actual
+  const paymentDate = fee.paymentDate
+    ? new Date(fee.paymentDate).toLocaleDateString('es-AR')
+    : new Date().toLocaleDateString('es-AR')
+
+  // Traducir método de pago
+  const getPaymentMethodText = (method?: ('cash' | 'bank_transfer') | null) => {
+    if (!method) return 'no especificado'
+    return method === 'cash' ? 'efectivo' : 'transferencia bancaria'
+  }
 
   return (
     <Document>
@@ -193,8 +204,11 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
           <Text style={styles.headerMatricula}>MAT. {globals.registration_number}</Text>
         </View>
 
-        {/* Número de comprobante */}
-        <Text style={styles.comprobanteNumber}>N° {receiptNumber}</Text>
+        {/* Fecha de pago y Número de comprobante en la misma fila */}
+        <View style={styles.topRow}>
+          <Text style={styles.paymentDate}>Fecha: {paymentDate}</Text>
+          <Text style={styles.comprobanteNumber}>N° {receiptNumber}</Text>
+        </View>
 
         {/* Título del documento */}
         <Text style={styles.title}>RECIBO DE PAGO DE HONORARIOS</Text>
@@ -203,7 +217,7 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
         {client && (
           <View style={styles.clientInfo}>
             <Text style={styles.clientText}>
-              <Text style={{ fontWeight: 'bold' }}>Recibí de:</Text> {client.business_name}
+              <Text style={{ fontWeight: 'bold' }}>Cliente:</Text> {client.business_name}
             </Text>
             <Text style={styles.clientText}>
               <Text style={{ fontWeight: 'bold' }}>CUIT:</Text> {client.cuit}
@@ -216,73 +230,79 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
           </View>
         )}
 
-        {/* Información del pago */}
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Vale $:</Text>
-          <Text style={styles.infoValue}>{formatCurrency(totalConSaldoAnterior)}</Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>La cantidad de pesos:</Text>
-          <Text style={styles.infoValue}>
-            {/* Aquí podrías agregar una función para convertir números a palabras */}
-            (ver detalle)
+        {/* Texto del recibo en formato continuo */}
+        <Text style={styles.receiptText}>
+          Recibí del Señor <Text style={{ fontWeight: 'bold' }}>{client?.business_name}</Text> la
+          cantidad de pesos{' '}
+          <Text style={{ fontWeight: 'bold' }}>$ {formatCurrency(totalConSaldoAnterior)}</Text> en{' '}
+          <Text style={{ fontWeight: 'bold' }}>{getPaymentMethodText(fee.paymentMethod)}</Text>,
+          para ser aplicados al pago de los conceptos indicados en el detalle, correspondientes a
+          honorarios profesionales del periodo{' '}
+          <Text style={{ fontWeight: 'bold' }}>
+            {new Date(fee.period).toLocaleDateString('es-AR', {
+              month: '2-digit',
+              year: 'numeric',
+            })}
           </Text>
-        </View>
+          {previousFees && previousFees.length > 0 && ' y periodos anteriores adeudados'}.
+        </Text>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Recibí del Señor:</Text>
-          <Text style={styles.infoValue}>{client ? client.business_name : ''}</Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>La cantidad de pesos:</Text>
-          <Text style={styles.infoValue}>
-            Para ser aplicados al pago de los conceptos indicados en anexo I/II
-          </Text>
-        </View>
-
-        {/* Tabla de conceptos - Anexo */}
+        {/* Tabla de conceptos detallados */}
         <View style={styles.table}>
           {/* Header de la tabla */}
           <View style={styles.headerRow}>
-            <Text style={[styles.tableHeader, { width: '60%' }]}>PERÍODO</Text>
+            <Text style={[styles.tableHeader, { width: '60%' }]}>CONCEPTO</Text>
             <Text style={[styles.tableHeader, { width: '40%' }]}>IMPORTE</Text>
           </View>
 
-          {/* Honorarios previos adeudados */}
-          {previousFees && previousFees.length > 0 && (
-            <>
-              {previousFees.map((prevFee, idx) => {
-                const prevFeeTotal =
-                  prevFee.concepts?.reduce((sum, item) => {
-                    return sum + (item.price || 0)
-                  }, 0) || 0
+          {/* Honorarios previos adeudados - detallados */}
+          {previousFees &&
+            previousFees.length > 0 &&
+            previousFees.map((prevFee, idx) => {
+              return prevFee.concepts?.map((item, conceptIdx) => {
+                const concept = typeof item.concept === 'string' ? null : (item.concept as Concept)
+                const period = new Date(prevFee.period).toLocaleDateString('es-AR', {
+                  month: '2-digit',
+                  year: 'numeric',
+                })
                 return (
-                  <View key={`prev-${idx}`} style={styles.tableRow}>
-                    <Text style={styles.tableCellConcept}>
-                      {new Date(prevFee.period).toLocaleDateString('es-AR', {
-                        month: '2-digit',
-                        year: 'numeric',
-                      })}
+                  <View key={`prev-${idx}-${conceptIdx}`} style={styles.tableRow}>
+                    <Text
+                      style={[styles.tableCellConcept, { fontWeight: 'bold', fontStyle: 'italic' }]}
+                    >
+                      {concept?.name || 'Concepto desconocido'} - {period}
                     </Text>
-                    <Text style={styles.tableCellAmount}>$ {formatCurrency(prevFeeTotal)}</Text>
+                    <Text style={[styles.tableCellAmount, { fontWeight: 'bold' }]}>
+                      $ {formatCurrency(item.price)}
+                    </Text>
                   </View>
                 )
-              })}
-            </>
-          )}
+              })
+            })}
 
-          {/* Periodo actual */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellConcept}>
-              {new Date(fee.period).toLocaleDateString('es-AR', {
+          {/* Conceptos del periodo actual */}
+          {fee.concepts && fee.concepts.length > 0 ? (
+            fee.concepts.map((item, index) => {
+              const concept = typeof item.concept === 'string' ? null : (item.concept as Concept)
+              const period = new Date(fee.period).toLocaleDateString('es-AR', {
                 month: '2-digit',
                 year: 'numeric',
-              })}
-            </Text>
-            <Text style={styles.tableCellAmount}>$ {formatCurrency(total)}</Text>
-          </View>
+              })
+              return (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={styles.tableCellConcept}>
+                    {concept ? concept.name : 'Concepto desconocido'} - {period}
+                  </Text>
+                  <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                </View>
+              )
+            })
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCellConcept}>Sin conceptos</Text>
+              <Text style={styles.tableCellAmount}>$ 0.00</Text>
+            </View>
+          )}
 
           {/* Fila de total */}
           <View style={styles.totalRow}>
@@ -310,7 +330,6 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
           <Text style={styles.footerText}>
             {client?.business_name} - CUIT: {client?.cuit}
           </Text>
-          <Text style={styles.footerText}>Fecha de emisión: {currentDate}</Text>
         </View>
       </Page>
     </Document>

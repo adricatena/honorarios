@@ -297,6 +297,8 @@ export interface Fee {
   observations?: string | null;
   period: string;
   state: 'due' | 'paid';
+  paymentDate?: string | null;
+  paymentMethod?: ('cash' | 'bank_transfer') | null;
   title?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -652,6 +654,8 @@ export interface FeesSelect<T extends boolean = true> {
   observations?: T;
   period?: T;
   state?: T;
+  paymentDate?: T;
+  paymentMethod?: T;
   title?: T;
   updatedAt?: T;
   createdAt?: T;
