@@ -131,6 +131,7 @@ export const Fees: CollectionConfig = {
         components: {
           Field: '/components/viewer-pdf-comprobante#ViewerPdfComprobante',
         },
+        disableListColumn: true,
       },
     },
     {
@@ -143,6 +144,7 @@ export const Fees: CollectionConfig = {
         components: {
           Field: '/components/viewer-pdf-fee#ViewerPdfFee',
         },
+        disableListColumn: true,
       },
     },
     {
@@ -282,6 +284,7 @@ export const Fees: CollectionConfig = {
       label: 'Título',
       admin: {
         hidden: true,
+        disableListColumn: true,
       },
     },
   ],

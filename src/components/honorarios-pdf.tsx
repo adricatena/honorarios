@@ -127,8 +127,6 @@ interface Props {
 }
 
 export function HonorariosPDF({ fee, globals, previousFees }: Props) {
-  console.log('Generating PDF with fee:', fee, 'and globals:', globals)
-
   // Calcular el total de honorarios previos adeudados
   const previousFeesTotal =
     previousFees?.reduce((sum, prevFee) => {

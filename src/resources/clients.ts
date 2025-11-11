@@ -44,6 +44,16 @@ export const Clients: CollectionConfig = {
         rows: 4,
       },
     },
+    {
+      name: 'fees',
+      type: 'join',
+      label: 'Honorarios',
+      collection: 'fees',
+      on: 'client',
+      admin: {
+        allowCreate: false,
+      },
+    },
     // aside fields
     {
       name: 'email',

@@ -78,7 +78,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    clients: {
+      fees: 'fees';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     files: FilesSelect<false> | FilesSelect<true>;
@@ -252,6 +256,11 @@ export interface Client {
    * Información adicional sobre el cliente.
    */
   observations?: string | null;
+  fees?: {
+    docs?: (string | Fee)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   email: string;
   cuit: string;
   vat_condition: 'responsable_inscripto' | 'monotributista';
@@ -618,6 +627,7 @@ export interface ClientsSelect<T extends boolean = true> {
   address?: T;
   concepts?: T;
   observations?: T;
+  fees?: T;
   email?: T;
   cuit?: T;
   vat_condition?: T;
