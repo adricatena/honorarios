@@ -104,6 +104,7 @@ export const Fees: CollectionConfig = {
     hideAPIURL: HIDE_API_URL,
     useAsTitle: 'title',
     components: {
+      beforeListTable: ['/components/fees-exports#FeesExports'],
       views: {
         edit: {
           honorario: {
