@@ -299,6 +299,7 @@ export interface Fee {
   state: 'due' | 'paid';
   paymentDate?: string | null;
   paymentMethod?: ('cash' | 'bank_transfer') | null;
+  invoiceNumber?: number | null;
   title?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -656,6 +657,7 @@ export interface FeesSelect<T extends boolean = true> {
   state?: T;
   paymentDate?: T;
   paymentMethod?: T;
+  invoiceNumber?: T;
   title?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -745,6 +747,7 @@ export interface Variable {
   bank_name: string;
   account_holder: string;
   bank_alias: string;
+  invoiceNumber: number;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -777,6 +780,7 @@ export interface VariablesSelect<T extends boolean = true> {
   bank_name?: T;
   account_holder?: T;
   bank_alias?: T;
+  invoiceNumber?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

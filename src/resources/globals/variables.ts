@@ -48,5 +48,16 @@ export const Variables: GlobalConfig = {
       label: 'Alias Bancario',
       required: true,
     },
+    {
+      name: 'invoiceNumber',
+      type: 'number',
+      label: 'Número de factura inicial',
+      required: true,
+      defaultValue: 1,
+      min: 1,
+      admin: {
+        readOnly: true,
+      },
+    },
   ],
 }

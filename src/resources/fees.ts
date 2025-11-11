@@ -1,6 +1,11 @@
 import { HIDE_API_URL, NODE_ENV } from '@/config'
 import type { Fee } from '@/payload-types'
-import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
+import {
+  APIError,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type FieldHook,
+} from 'payload'
 
 // si ya existe un honorario para el mismo cliente y período, lanzar error
 const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
@@ -58,6 +63,35 @@ const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
   }
 
   return data
+}
+
+const afterChangeFeeState: FieldHook<Fee> = async ({ req, data, previousValue, value }) => {
+  // si el estado cambio a "paid", guardar en el campo invoiceNumber el utlimo numero de comprobante que quedo guardado en las globals
+  if (previousValue !== 'paid' && value === 'paid' && data?.id) {
+    const globals = await req.payload.findGlobal({
+      slug: 'variables',
+    })
+
+    const lastInvoiceNumber = globals?.invoiceNumber || 0
+    const newInvoiceNumber = lastInvoiceNumber + 1
+
+    await req.payload.updateGlobal({
+      slug: 'variables',
+      data: {
+        invoiceNumber: newInvoiceNumber,
+      },
+    })
+
+    await req.payload.update({
+      collection: 'fees',
+      id: data.id,
+      data: {
+        invoiceNumber: newInvoiceNumber,
+      },
+    })
+  }
+
+  return value
 }
 
 export const Fees: CollectionConfig = {
@@ -191,6 +225,9 @@ export const Fees: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
+      hooks: {
+        afterChange: [afterChangeFeeState],
+      },
     },
     {
       name: 'paymentDate',
@@ -223,6 +260,18 @@ export const Fees: CollectionConfig = {
       admin: {
         position: 'sidebar',
         condition: (data) => data?.state === 'paid',
+      },
+    },
+    {
+      name: 'invoiceNumber',
+      type: 'number',
+      label: 'Número de Comprobante',
+      required: false,
+      min: 1,
+      admin: {
+        position: 'sidebar',
+        condition: (data) => data?.state === 'paid',
+        readOnly: true,
       },
     },
     // hidden fields

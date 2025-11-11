@@ -150,12 +150,16 @@ interface Props {
   fee: Fee
   globals: Variable
   previousFees: Fee[]
-  receiptNumber?: string
 }
 
-export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '0001' }: Props) {
+export function ComprobantePDF({ fee, globals, previousFees }: Props) {
   // Obtener el cliente (puede ser objeto o string ID)
   const client = typeof fee.client === 'string' ? null : (fee.client as Client)
+
+  // Formatear número de comprobante
+  const formattedInvoiceNumber = fee.invoiceNumber
+    ? fee.invoiceNumber.toString().padStart(4, '0')
+    : '0000'
 
   // Calcular el total de honorarios previos adeudados
   const previousFeesTotal =
@@ -207,7 +211,7 @@ export function ComprobantePDF({ fee, globals, previousFees, receiptNumber = '00
         {/* Fecha de pago y Número de comprobante en la misma fila */}
         <View style={styles.topRow}>
           <Text style={styles.paymentDate}>Fecha: {paymentDate}</Text>
-          <Text style={styles.comprobanteNumber}>N° {receiptNumber}</Text>
+          <Text style={styles.comprobanteNumber}>N° {formattedInvoiceNumber}</Text>
         </View>
 
         {/* Título del documento */}
