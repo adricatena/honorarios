@@ -59,8 +59,8 @@ export const Clients: CollectionConfig = {
       name: 'email',
       type: 'email',
       label: 'Email',
-      required: true,
-      unique: true,
+      required: false,
+      // unique: true,
       admin: {
         position: 'sidebar',
       },

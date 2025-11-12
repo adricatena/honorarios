@@ -261,7 +261,7 @@ export interface Client {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  email: string;
+  email?: string | null;
   cuit: string;
   vat_condition: 'responsable_inscripto' | 'monotributista';
   phone?: string | null;
