@@ -1,11 +1,6 @@
 import { HIDE_API_URL } from '@/config'
 import type { Fee } from '@/payload-types'
-import {
-  APIError,
-  type CollectionBeforeChangeHook,
-  type CollectionConfig,
-  type FieldHook,
-} from 'payload'
+import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
 
 // si ya existe un honorario para el mismo cliente y período, lanzar error
 const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
@@ -64,10 +59,9 @@ const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
 
   return data
 }
-
-const afterChangeFeeState: FieldHook<Fee> = async ({ req, data, previousValue, value }) => {
-  // si el estado cambio a "paid", guardar en el campo invoiceNumber el utlimo numero de comprobante que quedo guardado en las globals
-  if (previousValue !== 'paid' && value === 'paid' && data?.id) {
+// si el estado cambio a "paid" y no tiene numero de comprobante, asignar el ultimo numero de comprobante + 1
+const beforeChangeUpdateInvoiceNumber: CollectionBeforeChangeHook<Fee> = async ({ req, data }) => {
+  if (data?.state === 'paid' && !data?.invoiceNumber) {
     const globals = await req.payload.findGlobal({
       slug: 'variables',
     })
@@ -75,23 +69,17 @@ const afterChangeFeeState: FieldHook<Fee> = async ({ req, data, previousValue, v
     const lastInvoiceNumber = globals?.invoiceNumber || 0
     const newInvoiceNumber = lastInvoiceNumber + 1
 
+    data.invoiceNumber = newInvoiceNumber
+
     await req.payload.updateGlobal({
       slug: 'variables',
       data: {
         invoiceNumber: newInvoiceNumber,
       },
     })
-
-    await req.payload.update({
-      collection: 'fees',
-      id: data.id,
-      data: {
-        invoiceNumber: newInvoiceNumber,
-      },
-    })
   }
 
-  return value
+  return data
 }
 
 export const Fees: CollectionConfig = {
@@ -117,7 +105,7 @@ export const Fees: CollectionConfig = {
     },
   },
   hooks: {
-    beforeChange: [beforeChange],
+    beforeChange: [beforeChange, beforeChangeUpdateInvoiceNumber],
   },
   trash: true,
   fields: [
@@ -228,9 +216,9 @@ export const Fees: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
-      hooks: {
+      /* hooks: {
         afterChange: [afterChangeFeeState],
-      },
+      }, */
     },
     {
       name: 'paymentDate',
