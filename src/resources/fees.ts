@@ -81,6 +81,17 @@ const beforeChangeUpdateInvoiceNumber: CollectionBeforeChangeHook<Fee> = async (
 
   return data
 }
+const beforeChangeNormalizePeriod: CollectionBeforeChangeHook<Fee> = async ({ data }) => {
+  if (data?.period) {
+    const date = new Date(data.period)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    // Formatear directamente en UTC con hora fija 12:00:00
+    data.period = `${year}-${month}-01T12:00:00.000+00:00`
+  }
+
+  return data
+}
 
 export const Fees: CollectionConfig = {
   slug: 'fees',
@@ -105,7 +116,7 @@ export const Fees: CollectionConfig = {
     },
   },
   hooks: {
-    beforeChange: [beforeChange, beforeChangeUpdateInvoiceNumber],
+    beforeChange: [beforeChange, beforeChangeUpdateInvoiceNumber, beforeChangeNormalizePeriod],
   },
   trash: true,
   fields: [
