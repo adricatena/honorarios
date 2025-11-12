@@ -51,7 +51,7 @@ export const Variables: GlobalConfig = {
     {
       name: 'invoiceNumber',
       type: 'number',
-      label: 'Número de factura inicial',
+      label: 'Número de recibo inicial',
       required: true,
       defaultValue: 1,
       min: 1,

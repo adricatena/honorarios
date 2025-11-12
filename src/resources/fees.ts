@@ -1,4 +1,4 @@
-import { HIDE_API_URL, NODE_ENV } from '@/config'
+import { HIDE_API_URL } from '@/config'
 import type { Fee } from '@/payload-types'
 import {
   APIError,
@@ -121,7 +121,7 @@ export const Fees: CollectionConfig = {
   },
   trash: true,
   fields: [
-    {
+    /* {
       type: 'ui',
       name: 'comprobante',
       label: 'Comprobante',
@@ -146,7 +146,7 @@ export const Fees: CollectionConfig = {
         },
         disableListColumn: true,
       },
-    },
+    }, */
     {
       name: 'client',
       type: 'relationship',

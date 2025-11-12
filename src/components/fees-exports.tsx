@@ -46,7 +46,7 @@ function mapFeesToCSV(fees: Fee[]): string[][] {
     'Estado',
     'Fecha de Pago',
     'Método de Pago',
-    'Nro. Factura',
+    'Nro. Comprobante',
     'Conceptos',
     'Total',
     'Fecha Creación',
