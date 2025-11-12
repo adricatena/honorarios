@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   //   return webpackConfig
   // },
   turbopack: {},
-  output: 'standalone',
+  // output: 'standalone',
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
