@@ -7,7 +7,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json bun.lock ./
-RUN bun install --no-save --frozen-lockfile
+RUN bun install --no-save --frozen-lockfile --production=false
 
 # Rebuild the source code only when needed
 FROM base AS builder
