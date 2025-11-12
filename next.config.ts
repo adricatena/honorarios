@@ -1,5 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
-import { NextConfig } from 'next'
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   // Your Next.js config here
