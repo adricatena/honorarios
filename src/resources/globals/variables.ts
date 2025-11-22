@@ -9,6 +9,17 @@ export const Variables: GlobalConfig = {
   },
   fields: [
     {
+      name: 'modulePrice',
+      type: 'number',
+      label: 'Precio por Módulo',
+      required: true,
+      defaultValue: 1.01,
+      min: 1,
+      admin: {
+        step: 0.01,
+      },
+    },
+    {
       name: 'registration_number',
       type: 'text',
       label: 'Matricula',

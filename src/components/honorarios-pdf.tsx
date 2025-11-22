@@ -228,11 +228,31 @@ export function HonorariosPDF({ fee, globals, previousFees }: Props) {
             fee.concepts.map((item, index) => {
               const concept = typeof item.concept === 'string' ? null : (item.concept as Concept)
               return (
-                <View key={index} style={styles.tableRow}>
-                  <Text style={styles.tableCellConcept}>
-                    {concept ? concept.name : 'Concepto desconocido'}
-                  </Text>
-                  <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                <View key={index}>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellConcept}>
+                      {concept ? concept.name : 'Concepto desconocido'}
+                    </Text>
+                    <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                  </View>
+                  {/* Detalles/módulos del concepto */}
+                  {concept?.modules && concept.modules.length > 0 && (
+                    <>
+                      {concept.modules.map((module, idx) => (
+                        <View key={`module-${idx}`} style={styles.tableRow}>
+                          <Text
+                            style={[
+                              styles.tableCellConcept,
+                              { fontSize: 6, fontStyle: 'italic', paddingLeft: 8 },
+                            ]}
+                          >
+                            {module.name}
+                          </Text>
+                          <Text style={styles.tableCellAmount}></Text>
+                        </View>
+                      ))}
+                    </>
+                  )}
                 </View>
               )
             })

@@ -278,10 +278,32 @@ export interface Concept {
   id: string;
   name: string;
   price: number;
+  modules?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Descripción del concepto.
    */
   description?: string | null;
+  /**
+   * Indica si el concepto se cobra por módulos o es un precio fijo.
+   */
+  byModules?: boolean | null;
+  /**
+   * Cantidad de módulos (si aplica).
+   */
+  modulesAmount?: number | null;
+  /**
+   * Precio calculado en base a la cantidad de módulos y el precio por módulo.
+   */
+  modulesPrice?: number | null;
+  /**
+   * Precio total del concepto (precio base + precio por módulos).
+   */
+  totalPrice?: number | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -644,7 +666,17 @@ export interface ClientsSelect<T extends boolean = true> {
 export interface ConceptsSelect<T extends boolean = true> {
   name?: T;
   price?: T;
+  modules?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
   description?: T;
+  byModules?: T;
+  modulesAmount?: T;
+  modulesPrice?: T;
+  totalPrice?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -751,6 +783,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Variable {
   id: string;
+  modulePrice: number;
   registration_number: string;
   cuit: string;
   cbu: string;
@@ -784,6 +817,7 @@ export interface PayloadJobsStat {
  * via the `definition` "variables_select".
  */
 export interface VariablesSelect<T extends boolean = true> {
+  modulePrice?: T;
   registration_number?: T;
   cuit?: T;
   cbu?: T;

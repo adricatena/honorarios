@@ -92,6 +92,46 @@ const beforeChangeNormalizePeriod: CollectionBeforeChangeHook<Fee> = async ({ da
 
   return data
 }
+const beforeChangeDefaultConcepts: CollectionBeforeChangeHook<Fee> = async ({ data, req }) => {
+  if (data?.client && (!data?.concepts || data.concepts.length === 0)) {
+    const client =
+      typeof data.client === 'string'
+        ? await req.payload.findByID({
+            collection: 'clients',
+            id: data.client,
+          })
+        : data.client
+
+    if (client?.concepts && client.concepts.length > 0) {
+      const variables = await req.payload.findGlobal({
+        slug: 'variables',
+      })
+      const conceptsData = await Promise.all(
+        client.concepts.map(async (conceptRel) => {
+          const concept =
+            typeof conceptRel === 'string'
+              ? await req.payload.findByID({
+                  collection: 'concepts',
+                  id: conceptRel,
+                })
+              : conceptRel
+
+          let price = concept?.price || 0
+          if (concept?.byModules) {
+            price += (concept?.modulesAmount || 0) * (variables.modulePrice || 1)
+          }
+
+          return {
+            concept: concept.id,
+            price,
+          }
+        }),
+      )
+
+      data.concepts = conceptsData
+    }
+  }
+}
 
 export const Fees: CollectionConfig = {
   slug: 'fees',
@@ -116,7 +156,12 @@ export const Fees: CollectionConfig = {
     },
   },
   hooks: {
-    beforeChange: [beforeChange, beforeChangeUpdateInvoiceNumber, beforeChangeNormalizePeriod],
+    beforeChange: [
+      beforeChange,
+      beforeChangeUpdateInvoiceNumber,
+      beforeChangeNormalizePeriod,
+      beforeChangeDefaultConcepts,
+    ],
   },
   trash: true,
   fields: [
@@ -161,6 +206,9 @@ export const Fees: CollectionConfig = {
       labels: {
         singular: 'Concepto',
         plural: 'Conceptos',
+      },
+      admin: {
+        condition: (data) => Boolean(data?.client),
       },
       fields: [
         {

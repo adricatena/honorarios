@@ -293,11 +293,31 @@ export function ComprobantePDF({ fee, globals, previousFees }: Props) {
                 year: 'numeric',
               })
               return (
-                <View key={index} style={styles.tableRow}>
-                  <Text style={styles.tableCellConcept}>
-                    {concept ? concept.name : 'Concepto desconocido'} - {period}
-                  </Text>
-                  <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                <View key={index}>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellConcept}>
+                      {concept ? concept.name : 'Concepto desconocido'} - {period}
+                    </Text>
+                    <Text style={styles.tableCellAmount}>$ {formatCurrency(item.price)}</Text>
+                  </View>
+                  {/* Detalles/módulos del concepto */}
+                  {concept?.modules && concept.modules.length > 0 && (
+                    <>
+                      {concept.modules.map((module, idx) => (
+                        <View key={`module-${idx}`} style={styles.tableRow}>
+                          <Text
+                            style={[
+                              styles.tableCellConcept,
+                              { fontSize: 6, fontStyle: 'italic', paddingLeft: 8 },
+                            ]}
+                          >
+                            {module.name}
+                          </Text>
+                          <Text style={styles.tableCellAmount}></Text>
+                        </View>
+                      ))}
+                    </>
+                  )}
                 </View>
               )
             })

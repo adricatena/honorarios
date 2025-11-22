@@ -29,8 +29,32 @@ export default buildConfig({
     avatar: 'default',
     theme: 'light',
     dateFormat: 'dd/MM/yyyy',
+    // Metainformación completa del admin panel
     meta: {
       titleSuffix: '| Honorarios',
+      description: 'Sistema de gestión de honorarios',
+      keywords: 'honorarios, facturación, gestión, clientes, conceptos',
+      openGraph: {
+        title: 'Honorarios - Panel de Administración',
+        description: 'Sistema de gestión de honorarios Leandro Lopez',
+        siteName: 'Honorarios',
+        type: 'website',
+        /* images: [
+          {
+            url: '/api/files/file/logo.png', // Ajusta según tu logo
+          },
+        ], */
+      },
+      /* icons: [
+        {
+          rel: 'icon',
+          url: '/favicon.ico',
+        },
+        {
+          rel: 'apple-touch-icon',
+          url: '/apple-touch-icon.png',
+        },
+      ], */
     },
     components: {
       graphics: {

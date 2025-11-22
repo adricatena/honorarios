@@ -56,16 +56,29 @@ export const CreateMonthlyFees: TaskConfig<'create-monthly-fees'> = {
     console.log(`Clientes activos: ${activeClients.totalDocs}`)
     console.log(`Clientes sin honorarios este mes: ${filteredClients.length}`)
 
+    const variables = await req.payload.findGlobal({
+      slug: 'variables',
+    })
+
     const promises = filteredClients.map((client) => {
+      const concepts = (client.concepts as Concept[]).map((concept) => {
+        let price = concept.price || 0
+        if (concept.byModules) {
+          price += (concept.modulesAmount || 0) * (variables.modulePrice || 1)
+        }
+
+        return {
+          concept: concept.id,
+          price: concept.price,
+        }
+      })
+
       return req.payload.create({
         collection: 'fees',
         data: {
           client: client.id,
           state: 'due',
-          concepts: (client.concepts as Concept[]).map((concept) => ({
-            concept: concept.id,
-            price: concept.price,
-          })),
+          concepts,
           period: TODAY.toISOString(),
         },
       })
