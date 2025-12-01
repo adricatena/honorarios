@@ -220,7 +220,7 @@ const createMonthlyFeesEndpoint: PayloadHandler = async (req) => {
         .join('; ')}`,
     )
 
-    return {
+    return req.payload.create({
       collection: 'fees',
       data: {
         client: client.id,
@@ -228,26 +228,17 @@ const createMonthlyFeesEndpoint: PayloadHandler = async (req) => {
         concepts,
         period: periodFormatted,
       },
-    }
-    /* return req.payload.create({
-      collection: 'fees',
-      data: {
-        client: client.id,
-        state: 'due',
-        concepts,
-        period: periodFormatted,
-      },
-    }) */
+    })
   })
-  // const createdFees = await Promise.all(promises)
+  const createdFees = await Promise.all(promises)
 
   console.log(
-    `Se han creado ${promises.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
+    `Se han creado ${createdFees.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
   )
 
   return Response.json(
     {
-      message: `Se han creado ${promises.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
+      message: `Se han creado ${createdFees.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
     },
     { status: 200 },
   )
