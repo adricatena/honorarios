@@ -1,6 +1,12 @@
 import { HIDE_API_URL } from '@/config'
-import type { Fee } from '@/payload-types'
-import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
+import type { Client, Concept, Fee } from '@/payload-types'
+import { endOfMonth, startOfMonth, subMonths } from 'date-fns'
+import {
+  APIError,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type PayloadHandler,
+} from 'payload'
 
 // si ya existe un honorario para el mismo cliente y período, lanzar error
 const beforeChange: CollectionBeforeChangeHook<Fee> = async ({
@@ -131,6 +137,111 @@ const beforeChangeDefaultConcepts: CollectionBeforeChangeHook<Fee> = async ({ da
       data.concepts = conceptsData
     }
   }
+}
+
+const createMonthlyFeesEndpoint: PayloadHandler = async (req) => {
+  console.log('Handler de create-monthly-fees ejecutado')
+
+  const bearerToken = `Bearer ${process.env.N8N_BEARER_TOKEN}`
+
+  if (req.headers.get('authorization') !== bearerToken) {
+    console.log('Authorization failed')
+    return Response.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
+  console.log('Authorization succeeded')
+
+  const activeClients = await req.payload.find({
+    collection: 'clients',
+    pagination: false,
+    where: {
+      active: { equals: true },
+    },
+  })
+
+  const TODAY = new Date()
+  // Calcular el mes anterior
+  const previousMonth = subMonths(TODAY, 1)
+  const firstDayOfPreviousMonth = startOfMonth(previousMonth)
+  const lastDayOfPreviousMonth = endOfMonth(previousMonth)
+
+  const year = previousMonth.getFullYear()
+  const month = String(previousMonth.getMonth() + 1).padStart(2, '0')
+  const periodFormatted = `${year}-${month}-01T12:00:00.000+00:00`
+
+  const filteredClients: Client[] = []
+  for (const client of activeClients.docs) {
+    const { totalDocs } = await req.payload.find({
+      collection: 'fees',
+      where: {
+        and: [
+          { client: { equals: client.id } },
+          { period: { greater_than_equal: firstDayOfPreviousMonth.toISOString() } },
+          { period: { less_than: lastDayOfPreviousMonth.toISOString() } },
+        ],
+      },
+      pagination: false,
+    })
+
+    if (totalDocs === 0) {
+      filteredClients.push(client)
+    }
+  }
+
+  console.log(
+    `Clientes activos: ${activeClients.docs.map((client) => client.business_name).join('; ')}`,
+  )
+  console.log(
+    `Clientes sin honorarios del mes ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })} : ${filteredClients.map((c) => c.business_name).join('; ')}`,
+  )
+
+  const variables = await req.payload.findGlobal({
+    slug: 'variables',
+  })
+
+  const promises = filteredClients.map((client) => {
+    const concepts = (client.concepts as Concept[]).map((concept) => {
+      console.log(`Procesando concepto ${concept.name} para cliente ${client.business_name}`)
+
+      let price = concept.price || 0
+      if (concept.byModules) {
+        price += (concept.modulesAmount || 0) * (variables.modulePrice || 1)
+      }
+
+      return {
+        concept: concept.id,
+        price: concept.price,
+      }
+    })
+
+    console.log(
+      `Creando honorario para cliente ${client.business_name} con conceptos: ${concepts
+        .map((c) => `(${c.concept}, ${c.price})`)
+        .join('; ')}`,
+    )
+
+    return req.payload.create({
+      collection: 'fees',
+      data: {
+        client: client.id,
+        state: 'due',
+        concepts,
+        period: periodFormatted,
+      },
+    })
+  })
+  const createdFees = await Promise.all(promises)
+
+  console.log(
+    `Se han creado ${createdFees.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
+  )
+
+  return Response.json(
+    {
+      message: `Se han creado ${createdFees.length} honorarios para ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`,
+    },
+    { status: 200 },
+  )
 }
 
 export const Fees: CollectionConfig = {
@@ -333,6 +444,13 @@ export const Fees: CollectionConfig = {
         hidden: true,
         disableListColumn: true,
       },
+    },
+  ],
+  endpoints: [
+    {
+      method: 'post',
+      path: '/create-monthly-fees',
+      handler: createMonthlyFeesEndpoint,
     },
   ],
 }

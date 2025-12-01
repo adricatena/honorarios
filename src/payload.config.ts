@@ -7,14 +7,13 @@ import { buildConfig } from 'payload'
 import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-import { DATABASE_URI, JOBS_CRON, PAYLOAD_SECRET } from './config'
+import { BASE_URL, DATABASE_URI, N8N_URL, PAYLOAD_SECRET } from './config'
 import { storagePlugin } from './plugins/storage'
 import { Clients } from './resources/clients'
 import { Concepts } from './resources/concepts'
 import { Fees } from './resources/fees'
 import { Files } from './resources/files'
 import { Variables } from './resources/globals/variables'
-import { CreateMonthlyFees } from './resources/tasks/create-monthly-fees'
 import { Users } from './resources/users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -39,22 +38,7 @@ export default buildConfig({
         description: 'Sistema de gestión de honorarios Leandro Lopez',
         siteName: 'Honorarios',
         type: 'website',
-        /* images: [
-          {
-            url: '/api/files/file/logo.png', // Ajusta según tu logo
-          },
-        ], */
       },
-      /* icons: [
-        {
-          rel: 'icon',
-          url: '/favicon.ico',
-        },
-        {
-          rel: 'apple-touch-icon',
-          url: '/apple-touch-icon.png',
-        },
-      ], */
     },
     components: {
       graphics: {
@@ -64,15 +48,6 @@ export default buildConfig({
   },
   collections: [Users, Files, Clients, Concepts, Fees],
   globals: [Variables],
-  jobs: {
-    tasks: [CreateMonthlyFees],
-    autoRun: [
-      {
-        queue: 'monthly-fees',
-        cron: JOBS_CRON,
-      },
-    ],
-  },
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
@@ -89,4 +64,6 @@ export default buildConfig({
       es,
     },
   },
+  cors: [BASE_URL, N8N_URL],
+  csrf: [BASE_URL, N8N_URL],
 })
