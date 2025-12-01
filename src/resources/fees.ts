@@ -195,22 +195,14 @@ const createMonthlyFeesEndpoint: PayloadHandler = async (req) => {
     `Clientes sin honorarios del mes ${previousMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })} : ${filteredClients.map((c) => c.business_name).join('; ')}`,
   )
 
-  const variables = await req.payload.findGlobal({
-    slug: 'variables',
-  })
-
   const promises = filteredClients.map((client) => {
     const concepts = (client.concepts as Concept[]).map((concept) => {
       console.log(`Procesando concepto ${concept.name} para cliente ${client.business_name}`)
-
-      let price = concept.price || 0
-      if (concept.byModules) {
-        price += (concept.modulesAmount || 0) * (variables.modulePrice || 1)
-      }
+      console.log('concepto', concept)
 
       return {
         concept: concept.id,
-        price: concept.price,
+        price: concept?.totalPrice || 0,
       }
     })
 

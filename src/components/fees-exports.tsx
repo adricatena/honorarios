@@ -11,14 +11,14 @@ function convertToCSV(data: string[][]): string {
     .map((row) =>
       row
         .map((cell) => {
-          // Escapar comillas dobles y envolver en comillas si contiene comas, saltos de línea o comillas
+          // Escapar comillas dobles y envolver en comillas si contiene punto y coma, saltos de línea o comillas
           const cellStr = String(cell ?? '')
-          if (cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')) {
+          if (cellStr.includes(';') || cellStr.includes('\n') || cellStr.includes('"')) {
             return `"${cellStr.replace(/"/g, '""')}"`
           }
           return cellStr
         })
-        .join(','),
+        .join(';'),
     )
     .join('\n')
 }
