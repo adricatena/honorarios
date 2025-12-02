@@ -94,6 +94,9 @@ function mapFeesToCSV(fees: Fee[]): string[][] {
     // Formatear fecha de creación
     const createdAt = new Date(fee.createdAt).toLocaleDateString('es-AR')
 
+    // Formatear total como número con coma decimal
+    const totalStr = total.toFixed(2).replace('.', ',')
+
     return [
       client?.business_name || '',
       client?.cuit || '',
@@ -103,7 +106,7 @@ function mapFeesToCSV(fees: Fee[]): string[][] {
       paymentMethod,
       fee.invoiceNumber?.toString() || '',
       conceptsStr,
-      `$${total.toFixed(2)}`,
+      totalStr,
       createdAt,
       fee.observations || '',
     ]
