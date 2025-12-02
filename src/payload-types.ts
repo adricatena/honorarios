@@ -7,6 +7,17 @@
  */
 
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeeConcepts".
+ */
+export type FeeConcepts =
+  | {
+      concept: string | Concept;
+      price: number;
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -306,13 +317,7 @@ export interface Concept {
 export interface Fee {
   id: string;
   client: string | Client;
-  concepts?:
-    | {
-        concept: string | Concept;
-        price: number;
-        id?: string | null;
-      }[]
-    | null;
+  concepts?: FeeConcepts;
   /**
    * Información adicional sobre el honorario.
    */
@@ -577,13 +582,7 @@ export interface ConceptsSelect<T extends boolean = true> {
  */
 export interface FeesSelect<T extends boolean = true> {
   client?: T;
-  concepts?:
-    | T
-    | {
-        concept?: T;
-        price?: T;
-        id?: T;
-      };
+  concepts?: T | FeeConceptsSelect<T>;
   observations?: T;
   period?: T;
   state?: T;
@@ -594,6 +593,15 @@ export interface FeesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeeConcepts_select".
+ */
+export interface FeeConceptsSelect<T extends boolean = true> {
+  concept?: T;
+  price?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

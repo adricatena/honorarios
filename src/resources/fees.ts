@@ -313,6 +313,7 @@ export const Fees: CollectionConfig = {
       admin: {
         condition: (data) => Boolean(data?.client),
       },
+      interfaceName: 'FeeConcepts',
       fields: [
         {
           name: 'concept',
