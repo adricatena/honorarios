@@ -101,37 +101,62 @@ function mapResumeToCSV(client: Client, fees: Fee[]): string[][] {
     'saldo',
   ]
 
-  // Mock ledger rows
-  const ledgerRows = [
-    ['', '', '', '', '', '', '01/01/2025', 'Saldo inicial', '', '', '$ 797.881,53'],
-    [
+  // Calcular movimientos reales para la cuenta corriente
+  const movements: { date: Date; description: string; debe: number; haber: number }[] = []
+
+  fees.forEach((fee) => {
+    const total =
+      fee.concepts?.reduce((sum, item) => {
+        return sum + (item.price || 0)
+      }, 0) || 0
+
+    // Cargo por honorarios (Debe)
+    const periodDate = new Date(fee.period)
+    const periodStr = periodDate.toLocaleDateString('es-AR', { month: '2-digit', year: 'numeric' })
+    movements.push({
+      date: new Date(fee.createdAt),
+      description: `Honorarios ${periodStr}`,
+      debe: total,
+      haber: 0,
+    })
+
+    // Si está pagado, registrar el pago (Haber)
+    if (fee.state === 'paid') {
+      movements.push({
+        date: fee.paymentDate ? new Date(fee.paymentDate) : new Date(fee.updatedAt),
+        description: `Pago${fee.paymentMethod === 'bank_transfer' ? ' (Transferencia)' : fee.paymentMethod === 'cash' ? ' (Efectivo)' : ''}`,
+        debe: 0,
+        haber: total,
+      })
+    }
+  })
+
+  // Ordenar cronológicamente
+  movements.sort((a, b) => a.date.getTime() - b.date.getTime())
+
+  // Calcular saldos y formatear filas
+  let saldo = 0
+  const formatCurrency = (val: number, showZero = false) => {
+    if (val === 0 && !showZero) return ''
+    return `$ ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)}`
+  }
+
+  const ledgerRows = movements.map((m) => {
+    saldo += m.debe - m.haber
+    return [
       '',
       '',
       '',
       '',
       '',
       '',
-      '01/01/2025',
-      'Honorarios 12-2025',
-      '$ 131.000,00',
-      '',
-      '$ 928.881,53',
-    ],
-    ['', '', '', '', '', '', '05/01/2025', 'pago', '', '$ -', '$ 928.881,53'],
-    [
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '01/02/2025',
-      'Honorarios 01-2026',
-      '$ 131.000,00',
-      '',
-      '$ 1.059.881,53',
-    ],
-  ]
+      m.date.toLocaleDateString('es-AR'),
+      m.description,
+      formatCurrency(m.debe),
+      formatCurrency(m.haber),
+      formatCurrency(saldo, true),
+    ]
+  })
 
   return [headers, ...feesRows, emptyRow, emptyRow, ledgerHeaders, ...ledgerRows]
 }
