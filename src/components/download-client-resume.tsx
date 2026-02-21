@@ -3,7 +3,7 @@ import type { Client, Config, Fee } from '@/payload-types'
 import { convertToCSV, downloadCSV } from '@/utils/csv'
 import { PayloadSDK } from '@payloadcms/sdk'
 import { Button, useDocumentInfo } from '@payloadcms/ui'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const sdk = new PayloadSDK<Config>({
   baseURL: '/api',
@@ -138,104 +138,20 @@ function mapResumeToCSV(client: Client, fees: Fee[]): string[][] {
 
 export function DownloadClientResume() {
   const documentInfo = useDocumentInfo()
-  console.log('Document Info:', documentInfo)
+
+  const client: Client = documentInfo.data as Client
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const feesRef = useRef<Fee[]>([])
 
   const handleClickDownloadResume = async () => {
     setIsLoading(true)
 
     try {
-      // Mock data
-      const mockClient: Client = {
-        id: '1',
-        business_name: 'TROCELLO MARCOS ANTONIO MARIA',
-        cuit: '20-18007501-2',
-        address: 'Calle Falsa 123',
-        vat_condition: 'responsable_inscripto',
-        updatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      }
-
-      const mockFees: Fee[] = [
-        {
-          id: '1',
-          client: mockClient,
-          period: '2026-01-01T00:00:00.000Z',
-          state: 'due',
-          concepts: [
-            {
-              concept: {
-                id: '1',
-                name: 'Honorarios TROCELLO MARCOS',
-                price: 131000,
-                updatedAt: '',
-                createdAt: '',
-              },
-              price: 131000,
-            },
-          ],
-          createdAt: '2026-02-01T00:00:00.000Z',
-          updatedAt: '2026-02-01T00:00:00.000Z',
-        },
-        {
-          id: '2',
-          client: mockClient,
-          period: '2025-12-01T00:00:00.000Z',
-          state: 'due',
-          concepts: [
-            {
-              concept: {
-                id: '1',
-                name: 'Honorarios TROCELLO MARCOS',
-                price: 131000,
-                updatedAt: '',
-                createdAt: '',
-              },
-              price: 131000,
-            },
-          ],
-          createdAt: '2026-01-01T00:00:00.000Z',
-          updatedAt: '2026-01-01T00:00:00.000Z',
-        },
-        {
-          id: '3',
-          client: mockClient,
-          period: '2025-11-01T00:00:00.000Z',
-          state: 'due',
-          concepts: [
-            {
-              concept: {
-                id: '1',
-                name: 'Honorarios TROCELLO MARCOS',
-                price: 131000,
-                updatedAt: '',
-                createdAt: '',
-              },
-              price: 131000,
-            },
-            {
-              concept: {
-                id: '2',
-                name: 'Honorarios TROCELLO MARCOS',
-                price: 666881.53,
-                updatedAt: '',
-                createdAt: '',
-              },
-              price: 666881.53,
-            },
-          ],
-          createdAt: '2025-12-01T00:00:00.000Z',
-          updatedAt: '2025-12-01T00:00:00.000Z',
-        },
-      ]
-
-      // Simulate network request
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const mappedData = mapResumeToCSV(mockClient, mockFees)
+      const mappedData = mapResumeToCSV(client, feesRef.current)
       const csvContent = convertToCSV(mappedData)
-      const filename = `cuenta_corriente_${mockClient.business_name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`
+      const filename = `cuenta_corriente_${client.business_name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`
 
       downloadCSV(csvContent, filename)
     } catch (error) {
@@ -244,6 +160,33 @@ export function DownloadClientResume() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    const init = async () => {
+      setIsLoading(true)
+
+      try {
+        const fees = await sdk.find({
+          collection: 'fees',
+          pagination: false,
+          where: {
+            client: {
+              equals: documentInfo.id,
+            },
+          },
+        })
+
+        console.log('Fetched fees:', fees)
+        feesRef.current = fees.docs
+
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error fetching fees:', error)
+      }
+    }
+
+    init()
+  }, [])
 
   return (
     <Button disabled={isLoading} onClick={handleClickDownloadResume}>
