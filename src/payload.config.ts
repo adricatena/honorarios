@@ -1,4 +1,3 @@
-// storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -45,6 +44,9 @@ export default buildConfig({
         Logo: '/brand/logo#Logo',
       },
     },
+  },
+  graphQL: {
+    disable: true,
   },
   collections: [Users, Files, Clients, Concepts, Fees],
   globals: [Variables],
