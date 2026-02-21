@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
     }
     return webpackConfig
   },
-  // turbopack: {},
   output: 'standalone',
 }
 

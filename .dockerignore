@@ -1,54 +1,18 @@
-# Docker files
-Dockerfile
-.dockerignore
-docker-compose*.yml
 
-# Dependencies
+.next
+.vscode
+dump-prod
 node_modules
+seed
+tests
 
-# Build artifacts
-.next/
-out/
-build/
-dist/
+.dockerignore
+.env
+.prettierrc.json
+LICENSE
+next-env.d.ts
+test.env
+vitest.config.ts
+vitest.setup.ts
 
-# Cache
-.turbo/
-.swc/
-.cache/
-*.log
-
-# Testing
-coverage/
-*.test.*
-*.spec.*
-tests/
-
-# Environment files
-.env*
-!.env.example
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Git
-.git/
-.gitignore
-.gitattributes
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Docs
 *.md
-docs/
-
-# CI/CD
-.github/
-
-# Payload specific
-.payload/
