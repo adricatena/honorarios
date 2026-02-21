@@ -10,6 +10,17 @@ export const Clients: CollectionConfig = {
   admin: {
     hideAPIURL: HIDE_API_URL,
     useAsTitle: 'business_name',
+    components: {
+      views: {
+        edit: {
+          cuentaCorriente: {
+            tab: {
+              Component: '/components/download-client-resume#DownloadClientResume',
+            },
+          },
+        },
+      },
+    },
   },
   // auth: true,
   trash: true,
