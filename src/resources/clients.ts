@@ -63,6 +63,7 @@ export const Clients: CollectionConfig = {
       on: 'client',
       admin: {
         allowCreate: false,
+        defaultColumns: ['client', 'period', 'state'],
       },
     },
     // aside fields
